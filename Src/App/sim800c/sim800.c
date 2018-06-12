@@ -295,19 +295,19 @@ void Gsm_TurnON(void)
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
     HAL_GPIO_WritePin(GPIOD, GPIO_PIN_1, GPIO_PIN_SET);
     vTaskDelay(pdMS_TO_TICKS(100));
-//    while(1)
-//    {
-//        if(Gsm_SendAndWait((uint8_t *)"AT\r\n",(uint8_t *)"OK",1,10))//如果之前关机，则现在开机
-//        {
-//            HAL_GPIO_WritePin(GPIOD, GPIO_PIN_1, GPIO_PIN_RESET);
-//            vTaskDelay(pdMS_TO_TICKS(1100));
-//            HAL_GPIO_WritePin(GPIOD, GPIO_PIN_1, GPIO_PIN_SET);
-//            vTaskDelay(pdMS_TO_TICKS(100));
-//            continue;
-//        }
-//        else
-//            break;
-//    }
+    while(1)
+    {
+        if(Gsm_SendAndWait((uint8_t *)"AT\r\n",(uint8_t *)"OK",1,10))//如果之前关机，则现在开机
+        {
+            HAL_GPIO_WritePin(GPIOD, GPIO_PIN_1, GPIO_PIN_RESET);
+            vTaskDelay(pdMS_TO_TICKS(1000));
+            HAL_GPIO_WritePin(GPIOD, GPIO_PIN_1, GPIO_PIN_SET);
+            vTaskDelay(pdMS_TO_TICKS(100));
+            continue;
+        }
+        else
+            break;
+    }
 }
 
 /***********************************************************************************

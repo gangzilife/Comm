@@ -7,8 +7,8 @@ void vTaskCodeGPRS( void * pvParameters )
 {
     (void)pvParameters;
     BSP_USART_Init(); //初始化模块通信串口
-    //Gsm_TurnON();      //模块开机
-    //printf("turn ok\r\n");
+    Gsm_TurnON();      //模块开机
+
     Gsm_Init();
     while(1)
     {

@@ -95,5 +95,5 @@ uint16_t USART2_Rx(uint8_t* buf,uint16_t len)
 
 void USART2_Tx(uint8_t* buf,uint16_t size)
 {
-    HAL_UART_Transmit(&huart2, buf, size, (size + 1)/10);
+    HAL_UART_Transmit(&huart2, buf, size, (size + 9)/10);
 }
