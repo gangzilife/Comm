@@ -162,7 +162,7 @@ void gprs_disconnect(Network* n)
 int gprs_ConnectNetwork(Network* n, char* ip, int port)
 {
     (void)n;
-    if(Gsm_Connect_Server((uint8_t*)ip ,port) == CONNECT_ERR_NONE)
+    if(Gsm_Connect_Server((char*)ip ,port) == CONNECT_ERR_NONE)
         return 0;
     else
         return 1;

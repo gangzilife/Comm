@@ -36,8 +36,8 @@ void vTaskCodeGPRS( void * pvParameters )
     gprs_NewNetwork(&gprs_network,1);
     MQTTClientInit(&gprsclient, &gprs_network, 3000,sendbuf, sizeof(sendbuf), readbuf, sizeof(readbuf));
 
-	uint8_t address[] = {192,168,0,102};
-	if ((rc = ConnectNetwork(&gprs_network, (char*)address, 1883)) != 0)
+	char address[] = "114.55.56.64";
+	if ((rc = gprs_ConnectNetwork(&gprs_network, (char*)address, 1883)) != 0)
 		printf("Return code from network connect is %d\n", rc);
 
 #if defined(MQTT_TASK)

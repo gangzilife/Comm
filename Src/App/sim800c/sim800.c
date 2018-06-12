@@ -391,9 +391,9 @@ uint8_t Gsm_Connect_Server(uint8_t *ip ,uint32_t port)
 	}		
 
  	//printf("获取本地的IP \r\n");
-    if(Gsm_get_local_ip())
+    //if(Gsm_get_local_ip())
 	{
-	    return CONNECT_ERR_CIFSR;
+	//    return CONNECT_ERR_CIFSR;
 	}
 	
 	

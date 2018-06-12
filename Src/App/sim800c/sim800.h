@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #define  GPRS_CIPMUX_TYPE    	        1	//1多连接   0 单连接    		GPRS的连接方式
-#define  DEFAULT_LINK_CHANNEL           1  //默认多连接的通道
+#define  DEFAULT_LINK_CHANNEL           0  //默认多连接的通道
 #define  DEFAULT_SENDDATA_BACKINF_MODE	1  //发送成功时显示'<',返回"send ok"
 #define  DEFAULT_TANS_MODE          	0  //0  非透传模式    1透传模式
 
