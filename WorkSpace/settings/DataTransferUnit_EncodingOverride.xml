@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<userOverrides>
+  <override>
+    <path>E:\DataTransferUnit-V1.0.0\Src\App\Ethernet\W5500\socket.c</path>
+    <encoding>UTF-8</encoding>
+  </override>
+  <override>
+    <path>E:\DataTransferUnit-V1.0.0\Src\App\Ethernet\W5500\socket.h</path>
+    <encoding>UTF-8</encoding>
+  </override>
+  <override>
+    <path>E:\DataTransferUnit-V1.0.0\Src\App\Ethernet\W5500\utility.c</path>
+    <encoding>UTF-8</encoding>
+  </override>
+  <override>
+    <path>E:\DataTransferUnit-V1.0.0\Src\App\Ethernet\W5500\w5500.c</path>
+    <encoding>UTF-8</encoding>
+  </override>
+  <override>
+    <path>E:\DataTransferUnit-V1.0.0\Src\App\Ethernet\W5500\w5500.h</path>
+    <encoding>UTF-8</encoding>
+  </override>
+  <override>
+    <path>E:\DataTransferUnit-V1.0.0\Src\App\Ethernet\W5500\w5500_conf.c</path>
+    <encoding>UTF-8</encoding>
+  </override>
+  <override>
+    <path>E:\DataTransferUnit-V1.0.0\Src\App\Ethernet\W5500\w5500_conf.h</path>
+    <encoding>UTF-8</encoding>
+  </override>
+  <override>
+    <path>E:\DataTransferUnit-V1.0.0\Src\App\User\main.c</path>
+    <encoding>System</encoding>
+  </override>
+</userOverrides>
+
+
