@@ -1,6 +1,8 @@
 #ifndef __MQTT_GPRS_INTERFACE_H_
 #define __MQTT_GPRS_INTERFACE_H_
 
+#include "mqtt_interface.h"
+
 /*
  * @brief MQTT MilliTimer handler
  * @note MUST BE register to your system 1m Tick timer handler
@@ -19,14 +21,6 @@
 /*
  * @brief Network structure
  */
-typedef struct Network Network;
-struct Network
-{
-	int my_socket;
-	int (*mqttread) (Network*, unsigned char*, int, int);
-	int (*mqttwrite) (Network*, unsigned char*, int, int);
-	void (*disconnect) (Network*);
-};
 
 /*
  * @brief Timer function

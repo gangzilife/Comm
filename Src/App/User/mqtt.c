@@ -2,7 +2,7 @@
 #include "MQTTClient.h"
 
 
-void messageArrived(MessageData* data)
+static void messageArrived(MessageData* data)
 {
 //	printf("%.*s: %.*s\n", data->topicName->lenstring.len, data->topicName->lenstring.data,
 //           data->message->payloadlen, data->message->payload);
@@ -38,7 +38,7 @@ void vTaskCodeMQTT( void * pvParameters )
 		printf("Return code from start tasks is %d\n", rc);
 #endif
     connectData.MQTTVersion = 3;
-	connectData.clientID.cstring = "FreeRTOS_Sample";
+	connectData.clientID.cstring = "Enternet_MQTTClient";
 
 	if ((rc = MQTTConnect(&client, &connectData)) != 0)
 		printf("Return code from MQTT connect is %d\n", rc);

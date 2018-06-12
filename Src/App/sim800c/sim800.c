@@ -239,7 +239,7 @@ uint8_t Gsm_Init(void)
     
 	//初始化缓冲区
     Gsm_RecvInit();
-	if(Gsm_SendAndWait((uint8_t *)"AT\r\n",(uint8_t *)"OK",10,10))
+	if(Gsm_SendAndWait((uint8_t *)"AT\r\n",(uint8_t *)"OK",1,10))
 	{
 		return CONNECT_ERR_AT;
 	}

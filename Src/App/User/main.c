@@ -45,14 +45,14 @@ void vTaskCodeComm( void * pvParameters )
     DHCP_init(DHCP_SOCKET,dhcp_buf);
     while(1)
     {
-        if(DHCP_run() == DHCP_IP_LEASED)
-        {
-            DHCP_stop();
-            getIPfromDHCP(ip);
-            TaskHandle_t xEnternetHandle;
-            BaseType_t err = xTaskCreate( vTaskCodeMQTT,"EnternetMQTT",256,NULL,3,&xEnternetHandle);
-            assert(err == pdPASS);
-        }
+//        if(DHCP_run() == DHCP_IP_LEASED)
+//        {
+//            DHCP_stop();
+//            getIPfromDHCP(ip);
+//            TaskHandle_t xEnternetHandle;
+//            BaseType_t err = xTaskCreate( vTaskCodeMQTT,"EnternetMQTT",256,NULL,3,&xEnternetHandle);
+//            assert(err == pdPASS);
+//        }
 //        if(report_ok)
 //        {
 //            USBD_CUSTOM_HID_SendReport(&USB_OTG_dev,Report_buf,64);
