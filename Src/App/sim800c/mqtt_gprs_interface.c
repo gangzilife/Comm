@@ -139,7 +139,11 @@ int gprs_read(Network* n, unsigned char* buffer, int len, int timeout)
 int gprs_write(Network* n, unsigned char* buffer, int len, int timeout)
 {
     (void)n;
-    return Gsm_Send_data(buffer, len);
+    
+    if(Gsm_Send_data(buffer, len) == CONNECT_ERR_NONE)
+        return len;
+    else
+        return 0;
 }
 
 /*
@@ -162,7 +166,7 @@ void gprs_disconnect(Network* n)
 int gprs_ConnectNetwork(Network* n, char* ip, int port)
 {
     (void)n;
-    if(Gsm_Connect_Server((char*)ip ,port) == CONNECT_ERR_NONE)
+    if(Gsm_Connect_Server((uint8_t*)ip ,port) == CONNECT_ERR_NONE)
         return 0;
     else
         return 1;

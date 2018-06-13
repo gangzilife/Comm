@@ -2966,6 +2966,12 @@
       <name>$PROJ_DIR$\..\App\User\AppHook.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\App\User\data_analysis.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\App\User\data_analysis.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\App\User\FreeRTOSConfig.h</name>
     </file>
     <file>

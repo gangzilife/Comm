@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 //extern volatile RingBuffer_t Tx_buffer;
-extern SemaphoreHandle_t xGprsMutex;
+extern volatile SemaphoreHandle_t xGprsMutex;
 
 uint8_t gprs_buf[128] = {0};   //GSM接受缓冲区，全局变量
 
@@ -21,7 +21,8 @@ static void Gsm_RecvCmd(void)
 
 uint8_t Gsm_SendAndWait(uint8_t *cmd,uint8_t *strwait,uint8_t trynum,uint8_t timeout)
 {
-    uint8_t   i;
+    uint8_t   i ;
+    
 	char *p;
     
     const portTickType xDelay = (50*timeout) / portTICK_RATE_MS;
@@ -37,19 +38,47 @@ uint8_t Gsm_SendAndWait(uint8_t *cmd,uint8_t *strwait,uint8_t trynum,uint8_t tim
 		Gsm_RecvCmd();
 		p = strstr((char*)gprs_buf,(char*)strwait);
 		if(p)
-		{
+        {
 		   xSemaphoreGive(xGprsMutex);
 		   return 0;
-		}
-		else
-		{
-			p = strstr((char*)gprs_buf,"ALREADY CONNECT");
-			if(p)
-			{
-				xSemaphoreGive(xGprsMutex);
-				return 0;
-			}
-		}		
+        }
+	}
+	xSemaphoreGive(xGprsMutex);
+	return 1; 
+}
+
+uint8_t Gsm_SendAndWait2(uint8_t *cmd,uint8_t *strwait,uint8_t* strwait2,uint8_t trynum,uint8_t timeout)
+{
+    uint8_t   i ;
+    
+	char *p;
+    
+    const portTickType xDelay = (50*timeout) / portTICK_RATE_MS;
+	xSemaphoreTake( xGprsMutex,portMAX_DELAY );
+
+	for(i=0;i<trynum;i++)
+	{
+		//尝试发送
+		Gsm_RecvInit();
+		SIM800_SendStr(cmd);
+		vTaskDelay(xDelay);
+		//首先处理从收的数据
+		Gsm_RecvCmd();
+		p = strstr((char*)gprs_buf,(char*)strwait);
+		if(p)
+        {
+		   xSemaphoreGive(xGprsMutex);
+		   return 0;
+        }
+        else
+        {
+            p = strstr((char*)gprs_buf,(char*)strwait2);
+            if(p)
+            {
+               xSemaphoreGive(xGprsMutex);
+               return 0;
+            }
+        }
 	}
 	xSemaphoreGive(xGprsMutex);
 	return 1; 
@@ -170,7 +199,7 @@ static uint8_t Gsm_Connect_Tcp_or_UdpPort(uint8_t *ip ,uint32_t port,uint8_t cha
 		sprintf((char*)inf,"AT+CIPSTART=\"TCP\",\"%s\",\"%d\"\r\n",ip,port);
 	}	
 		
-	return Gsm_SendAndWait(inf,(uint8_t *)"CONNECT OK",RETRY_NUM,40);	
+	return Gsm_SendAndWait2(inf,(uint8_t *)"CONNECT OK",(uint8_t *)"ALREADY CONNECT" ,RETRY_NUM,40);	
 }
 
 
@@ -484,7 +513,7 @@ uint16_t Gsm_Recv_data(uint8_t* buf, uint16_t size)
                 memcpy(buf+offset,pst+1,len);                  
                 offset += len;
             }    
-            vTaskDelay(pdMS_TO_TICKS(100));
+            vTaskDelay(pdMS_TO_TICKS(50));
         }
 	}while((cnlen != 0)&&(rst == 1));
 	return offset;

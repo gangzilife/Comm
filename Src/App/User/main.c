@@ -4,8 +4,6 @@
 
 void vTaskCodeComm( void * pvParameters );
 
-SemaphoreHandle_t xGprsMutex;
-
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE  USB_OTG_dev __ALIGN_END;
 
 int main (void)
@@ -14,12 +12,11 @@ int main (void)
     BSP_SystemClkCfg();
     BSP_Init();
 
-    xGprsMutex = xSemaphoreCreateMutex();
-    assert(xGprsMutex != NULL);
+
     
-    TaskHandle_t xCommHandle;
-    BaseType_t errComm = xTaskCreate( vTaskCodeComm,"comm",256,NULL,2,&xCommHandle);
-    assert(errComm == pdPASS);
+//    TaskHandle_t xCommHandle;
+//    BaseType_t errComm = xTaskCreate( vTaskCodeComm,"comm",256,NULL,2,&xCommHandle);
+//    assert(errComm == pdPASS);
     
     TaskHandle_t xGprsHandle;
     BaseType_t errGprs = xTaskCreate( vTaskCodeGPRS,"gprs",256,NULL,2,&xGprsHandle);
@@ -45,14 +42,14 @@ void vTaskCodeComm( void * pvParameters )
     DHCP_init(DHCP_SOCKET,dhcp_buf);
     while(1)
     {
-//        if(DHCP_run() == DHCP_IP_LEASED)
-//        {
-//            DHCP_stop();
-//            getIPfromDHCP(ip);
-//            TaskHandle_t xEnternetHandle;
-//            BaseType_t err = xTaskCreate( vTaskCodeMQTT,"EnternetMQTT",256,NULL,3,&xEnternetHandle);
-//            assert(err == pdPASS);
-//        }
+        if(DHCP_run() == DHCP_IP_LEASED)
+        {
+            DHCP_stop();
+            getIPfromDHCP(ip);
+            TaskHandle_t xEnternetHandle;
+            BaseType_t err = xTaskCreate( vTaskCodeMQTT,"EnternetMQTT",256,NULL,3,&xEnternetHandle);
+            assert(err == pdPASS);
+        }
 //        if(report_ok)
 //        {
 //            USBD_CUSTOM_HID_SendReport(&USB_OTG_dev,Report_buf,64);
