@@ -90,6 +90,7 @@ void vTaskCodeGPRS( void * pvParameters )
     
     uint8_t gprs_mqtt_buf[128] = {0};
     uint8_t gprs_mqtt_len = 0;
+    Get_DeviceID();
 	while (1)
 	{
 #if !defined(MQTT_TASK)
@@ -110,16 +111,19 @@ void vTaskCodeGPRS( void * pvParameters )
         {
             Data_code(uart_buf,uart_len ,gprs_mqtt_buf,&gprs_mqtt_len);
             uart_len = 0;
-            
-            USART1_Tx(gprs_mqtt_buf,gprs_mqtt_len);
-//            MQTTMessage message;
-//            message.qos = QOS0;
-//            message.retained = 0;
-//            message.payload = gprs_mqtt_buf;
-//            message.payloadlen = gprs_mqtt_len;
-//
-//            if ((rc = MQTTPublish(&gprsclient, "I/ZJ", &message)) != 0)
-//                printf("Return code from MQTT publish is %d\n", rc);
+            if(gprs_mqtt_len != 0)
+            {
+                //USART1_Tx(gprs_mqtt_buf,gprs_mqtt_len);
+                MQTTMessage message;
+                message.qos = QOS0;
+                message.retained = 0;
+                message.payload = gprs_mqtt_buf;
+                message.payloadlen = gprs_mqtt_len;
+    
+                if ((rc = MQTTPublish(&gprsclient, "I/ZJ", &message)) != 0)
+                    printf("Return code from MQTT publish is %d\n", rc);
+            }
+
         }
         vTaskDelay(pdMS_TO_TICKS(50));
 	}

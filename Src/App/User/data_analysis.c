@@ -29,6 +29,7 @@
 #define Current1                23			        //int
 #define Current2                24			        //int
 #define Current3                25			        //int
+#define CarNum                  27			        //int
 
 
 typedef struct {
@@ -77,7 +78,13 @@ enum {
 //            return 0;
 //    }
 //}
+uint16_t DeviceID = 0;
 
+void Get_DeviceID(void)
+{
+    uint8_t buf[12] = {0xAA, 0x55, 0x0C, 0x00, 0x30, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x01, 0x00 };
+    USART1_Tx(buf,sizeof(buf));
+}
 void Data_decode(uint8_t* buf ,uint16_t len)
 {
     static uint16_t data_sn = 0;
@@ -165,11 +172,18 @@ void Data_decode(uint8_t* buf ,uint16_t len)
 void Data_code(uint8_t* inbuf ,uint16_t inlen , uint8_t* outbuf , uint8_t *outlen)
 {
     DataFrame_t* pbuf = (DataFrame_t*)inbuf;
+    if(pbuf->cmd == ACK_GET_ID )
+    {
+        DeviceID = pbuf->data[0] | (pbuf->data[1] << 8);
+        *outlen = 0;
+        return ;
+    }
+    
     uint8_t index = 0;
     outbuf[0] = 0x01;
     outbuf[1] = 0x06;
-    outbuf[2] = 0x04; //设备ID
-    outbuf[3] = 0x04;
+    outbuf[2] = DeviceID & 0x00FF; //设备ID
+    outbuf[3] = (DeviceID >> 8);
     outbuf[4] = 0x00;
     outbuf[5] = 0x00;
     outbuf[6] = 0x00;
@@ -197,12 +211,60 @@ void Data_code(uint8_t* inbuf ,uint16_t inlen , uint8_t* outbuf , uint8_t *outle
         outbuf[index++] = pbuf->data[0];
         break;
         case ACK_GET_CONTFREQ :
+        outbuf[index++] = ControlFreq;
+        outbuf[index++] = pbuf->data[0];
+        outbuf[index++] = pbuf->data[1];
+        outbuf[index++] = Threshold1;
+        outbuf[index++] = pbuf->data[2];
+        outbuf[index++] = Threshold2;
+        outbuf[index++] = pbuf->data[3];
         break;
         case ACK_SET_CONTFREQ :
+        outbuf[index++] = SetOK;
+        outbuf[index++] = pbuf->data[0];
         break;
-        case ACK_GET_STATUS :
+        case ACK_GET_STATUS : //这个状态较多
+        outbuf[index++] = CarNum;                       //车流量
+        outbuf[index++] = pbuf->data[0];
+        outbuf[index++] = pbuf->data[1];
+        outbuf[index++] = WhiteLightValue;              //环境光照度
+        outbuf[index++] = pbuf->data[2];
+        outbuf[index++] = pbuf->data[3];
+        outbuf[index++] = pbuf->data[4];
+        outbuf[index++] = pbuf->data[5];
+        outbuf[index++] = YellowLightMode;              //控制模式
+        outbuf[index++] = pbuf->data[6];
+        outbuf[index++] = WhiteLightMode;               //灯光信息
+        outbuf[index++] = pbuf->data[7];
+        outbuf[index++] = WhiteLightValue;
+        outbuf[index++] = pbuf->data[8];
+        outbuf[index++] = YellowLightMode;
+        outbuf[index++] = pbuf->data[9];
+        outbuf[index++] = YellowLightValue;
+        outbuf[index++] = pbuf->data[10];
+        outbuf[index++] = RedLightMode;
+        outbuf[index++] = pbuf->data[11];
+        outbuf[index++] = RedLightValue;
+        outbuf[index++] = pbuf->data[12];      
+        outbuf[index++] = ControlFreq;                  //控制信息
+        outbuf[index++] = pbuf->data[13];
+        outbuf[index++] = pbuf->data[14];
+        outbuf[index++] = Threshold1;
+        outbuf[index++] = pbuf->data[15];
+        outbuf[index++] = Threshold2;
+        outbuf[index++] = pbuf->data[16];
+        for(int i = 0 ; i< 3;i++)
+        {
+            outbuf[index++] = Current1 + i;              //环境光照度
+            outbuf[index++] = pbuf->data[17 + 4*i];
+            outbuf[index++] = pbuf->data[18 + 4*i];
+            outbuf[index++] = pbuf->data[19 + 4*i];
+            outbuf[index++] = pbuf->data[20 + 4*i];            
+        }
         break;
         case ACK_RESET :
+        outbuf[index++] = SetOK;
+        outbuf[index++] = pbuf->data[0];
         break;
         default :break;
     }
