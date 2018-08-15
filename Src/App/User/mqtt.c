@@ -29,7 +29,7 @@ void vTaskCodeMQTT( void * pvParameters )
     NewNetwork(&network,1);
     MQTTClientInit(&client, &network, 3000,sendbuf, sizeof(sendbuf), readbuf, sizeof(readbuf));
 
-	uint8_t address[] = {192,168,0,102};
+	uint8_t address[] = {192,168,0,142};
 	if ((rc = ConnectNetwork(&network, (char*)address, 1883)) != 0)
 		printf("Return code from network connect is %d\n", rc);
     
@@ -45,7 +45,8 @@ void vTaskCodeMQTT( void * pvParameters )
 	else
 		printf("MQTT Connected\n");
 
-	if ((rc = MQTTSubscribe(&client, "sensor", QOS0, messageArrived)) != 0)
+    char* sub = "O/60567";
+	if ((rc = MQTTSubscribe(&client, sub, QOS0, messageArrived)) != 0)
 		printf("Return code from MQTT subscribe is %d\n", rc);
 
     

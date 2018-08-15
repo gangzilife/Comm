@@ -17,6 +17,11 @@ static void messageArrived(MessageData* data)
     uint8_t* pdate = (uint8_t*)data->message->payload;
     memcpy(gprs_buf,pdate,data->message->payloadlen);
     gprs_len = data->message->payloadlen;
+    for(int i = 0 ; i < gprs_len ; i++)
+    {
+        printf("%02X ",gprs_buf[i]);
+    }
+    printf("\n");
     if(gprs_buf[1] != 0x06)//不是发给洞口灯的
         return;
     else
@@ -27,23 +32,60 @@ static void messageArrived(MessageData* data)
 MQTTClient gprsclient;
 void vTaskCodeGPRS( void * pvParameters )
 {
+    uint8_t uart_buf[128] = {0};
+    uint8_t uart_len = 0;
+    uint8_t ret = 0;
+    
+    uint8_t gprs_mqtt_buf[128] = {0};
+    uint8_t gprs_mqtt_len = 0;
+    
     xGprsMutex = xSemaphoreCreateMutex();
     assert(xGprsMutex != NULL);
     
     (void)pvParameters;
-    BSP_USART_Init(); //初始化模块通信串口
+    
     Gsm_TurnON();      //模块开机
 
-
+    while(1) //获取模块ID
+    {
+        Get_DeviceID();
+        do
+        {
+            vTaskDelay(pdMS_TO_TICKS(200));
+            ret = USART1_Rx(uart_buf + uart_len ,sizeof(uart_buf) - uart_len);
+            uart_len += ret;
+        }while(ret != 0);
+        if(uart_len != 0)//串口接受到数据，解析，组包，完后发布
+        {
+            Data_code(uart_buf,uart_len ,NULL,NULL);
+            uart_len = 0;
+        }
+        if(DeviceID != 0)
+        {
+            printf("get id success ! id = %d\n",DeviceID);
+            break;
+        }
+        else
+        {
+            printf("get id fail ! , try again!\n");
+            vTaskDelay(pdMS_TO_TICKS(10));
+            continue;
+        }
+    }
     
+      
     while(1)
     {
         vTaskDelay(pdMS_TO_TICKS(10));
         if(Gsm_Init() != 0)
+        {
+            printf("gprs initialize fail , try again!\n");
             continue;
+        }           
         else
             break;   
     }
+    printf("gprs initialize success!\n");
 	Network gprs_network;
     
 	uint8_t sendbuf[80], readbuf[80];
@@ -58,12 +100,16 @@ void vTaskCodeGPRS( void * pvParameters )
     //char address[] = "218.244.156.4";
     while(1)
     {
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(100));
         if ((rc = gprs_ConnectNetwork(&gprs_network, (char*)address, 1883)) != 0)
-            continue;      
+        {
+            printf("gprs connect fail , try again! ip = %s , port = 1883\n",address);
+            continue;
+        }   
         else
             break;          
     }
+    printf("gprs connect success! ip = %s , port = 1883\n",address);
 #if defined(MQTT_TASK)
 	if ((rc = MQTTStartTask(&gprsclient)) != pdPASS)
 		printf("Return code from start tasks is %d\n", rc);
@@ -73,24 +119,33 @@ void vTaskCodeGPRS( void * pvParameters )
 	connectData.clientID.cstring = "GPRS_MQTTClient";
     while(1)
     {
-        vTaskDelay(pdMS_TO_TICKS(10));
+        vTaskDelay(pdMS_TO_TICKS(100));
         if ((rc = MQTTConnect(&gprsclient, &connectData)) != 0)
+        {
+            printf("mqtt connect fail , try again!\n");
             continue; 
+        }
         else
             break;   
     }
+    printf("mqtt connect success!\n");
 
-    printf("MQTTConnect OK \r\n");
-	if ((rc = MQTTSubscribe(&gprsclient, "O/60567", QOS0, messageArrived)) != 0)
-		printf("Return code from MQTT subscribe is %d\n", rc);
-   
-    uint8_t uart_buf[128] = {0};
-    uint8_t uart_len = 0;
-    uint8_t ret = 0;
+    char str[20] = {0};
+    sprintf(str,"O/%d",DeviceID); 
+    while(1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        if ((rc = MQTTSubscribe(&gprsclient, (const char*)str, QOS0, messageArrived)) != 0)
+        {
+            printf("mqtt subcribe fail , try again! topic = %s\n",str);
+            continue; 
+        }
+        else
+            break;   
+    }    
+    printf("mqtt subcribe success! topic = %s\n",str);
+
     
-    uint8_t gprs_mqtt_buf[128] = {0};
-    uint8_t gprs_mqtt_len = 0;
-    Get_DeviceID();
 	while (1)
 	{
 #if !defined(MQTT_TASK)
@@ -100,6 +155,9 @@ void vTaskCodeGPRS( void * pvParameters )
         if(!gprsclient.isconnected)
         {
              //MQTT Disconnect,reconnect
+            __disable_irq();
+            HAL_NVIC_SystemReset();
+            
         }
         do
         {
@@ -119,7 +177,6 @@ void vTaskCodeGPRS( void * pvParameters )
                 message.retained = 0;
                 message.payload = gprs_mqtt_buf;
                 message.payloadlen = gprs_mqtt_len;
-    
                 if ((rc = MQTTPublish(&gprsclient, "I/ZJ", &message)) != 0)
                     printf("Return code from MQTT publish is %d\n", rc);
             }

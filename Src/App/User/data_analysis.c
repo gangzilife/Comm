@@ -9,7 +9,7 @@
 #define GETCONTROLINFO   0x0E   //一个参数id（char）
 #define GETDEVICESTATUS  0x0F   //一个参数id（char）
 #define DEVICERESET      0x10   //一个参数id（char）
-
+#define ROADISERR        0x11   //一个参数id（char）
 /* 解析命令 */
 
 //id	名称	单位	                            数据类型	分类
@@ -52,7 +52,8 @@ enum {
 	CMD_SET_CONTFREQ,				   // 0x0035 设置控制频率
 	CMD_GET_STATUS,				   // 0x0036 查询设备运行状态
 	CMD_UP_DATA,				      // 0x0037 上报数据（不用应答）
-	CMD_RESET				         // 0x0038 复位
+	CMD_RESET,				         // 0x0038 复位
+    CMD_ROADERR				         // 0x0039 道路异常
 };
 enum {
 	ACK_GET_ID = 0x8030,				// 0x8030 查询ID应答
@@ -62,7 +63,8 @@ enum {
 	ACK_GET_CONTFREQ,			      //  0x8034 查询控制频率应答
 	ACK_SET_CONTFREQ,			      //  0x8035 设置控制频率应答
 	ACK_GET_STATUS,               //  0x8036 查询设备运行状态应答
-	ACK_RESET                    //  0x8038 复位应答
+	ACK_RESET ,                   //  0x8038 复位应答
+    ACK_ROADERR                    //  0x8039道路异常应答
 };  
 //static uint8_t get_datalen(uint8_t data)
 //{
@@ -164,6 +166,15 @@ void Data_decode(uint8_t* buf ,uint16_t len)
         dataframe.number = data_sn++;
         USART1_Tx((uint8_t*)&dataframe,dataframe.length);
         break;
+        case ROADISERR:
+        dataframe.head   = 0x55AA;
+        dataframe.length = 13;
+        dataframe.cmd    = CMD_ROADERR;
+        dataframe.srcID  = 0;
+        dataframe.destID = 0xFFFF;
+        dataframe.number = data_sn++;
+        dataframe.data[0]= pdata[11];
+        USART1_Tx((uint8_t*)&dataframe,dataframe.length);
         default : break;       
     }
 }
@@ -266,8 +277,11 @@ void Data_code(uint8_t* inbuf ,uint16_t inlen , uint8_t* outbuf , uint8_t *outle
         outbuf[index++] = SetOK;
         outbuf[index++] = pbuf->data[0];
         break;
+        case ACK_ROADERR :
+        outbuf[index++] = SetOK;
+        outbuf[index++] = pbuf->data[0];
+        break;
         default :break;
     }
-    
     *outlen = index;
 }

@@ -2432,6 +2432,15 @@
     </group>
   </group>
   <group>
+    <name>Debug</name>
+    <file>
+      <name>$PROJ_DIR$\..\App\Debug\debug.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\App\Debug\debug.h</name>
+    </file>
+  </group>
+  <group>
     <name>DHCP</name>
     <file>
       <name>$PROJ_DIR$\..\App\DHCP\dhcp.c</name>

@@ -11,15 +11,15 @@ int main (void)
     HAL_Init();
     BSP_SystemClkCfg();
     BSP_Init();
-
-
+    Debug_Init();
+    BSP_USART_Init(); //初始化模块通信串口
+    
     
 //    TaskHandle_t xCommHandle;
 //    BaseType_t errComm = xTaskCreate( vTaskCodeComm,"comm",256,NULL,2,&xCommHandle);
 //    assert(errComm == pdPASS);
-    
     TaskHandle_t xGprsHandle;
-    BaseType_t errGprs = xTaskCreate( vTaskCodeGPRS,"gprs",256,NULL,2,&xGprsHandle);
+    BaseType_t errGprs = xTaskCreate( vTaskCodeGPRS,"gprs",512,NULL,2,&xGprsHandle);
     assert(errGprs == pdPASS);
     
     vTaskStartScheduler();

@@ -20,4 +20,5 @@
 #include "mqtt.h"
 #include "sim800.h"
 #include "gprs.h"
+#include "debug.h"
 #endif
